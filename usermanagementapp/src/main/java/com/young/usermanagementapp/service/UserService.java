@@ -5,11 +5,12 @@ import com.young.usermanagementapp.exception.domain.EmailExistException;
 import com.young.usermanagementapp.exception.domain.UserNotFoundException;
 import com.young.usermanagementapp.exception.domain.UsernameExistException;
 
+import javax.mail.MessagingException;
 import java.util.List;
 
 public interface UserService {
 
-    User register(String firstName, String lastName, String username, String email) throws UserNotFoundException, UsernameExistException, EmailExistException;
+    User register(String firstName, String lastName, String username, String email) throws UserNotFoundException, UsernameExistException, EmailExistException, MessagingException;
 
     List<User> getUsers();
 

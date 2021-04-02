@@ -6,6 +6,7 @@ import com.young.usermanagementapp.exception.domain.EmailExistException;
 import com.young.usermanagementapp.exception.domain.UserNotFoundException;
 import com.young.usermanagementapp.exception.domain.UsernameExistException;
 import com.young.usermanagementapp.repository.UserRepository;
+import com.young.usermanagementapp.service.EmailService;
 import com.young.usermanagementapp.service.LoginAttemptService;
 import com.young.usermanagementapp.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
@@ -39,6 +41,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final LoginAttemptService loginAttemptService;
+    private final EmailService emailService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -71,7 +74,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User register(String firstName, String lastName, String username, String email)
-            throws UserNotFoundException, UsernameExistException, EmailExistException {
+            throws UserNotFoundException, UsernameExistException, EmailExistException, MessagingException {
         validateNewUsernameAndEmail(StringUtils.EMPTY, username, email);
         User user = new User();
         user.setUserId(generateUserId());
@@ -90,6 +93,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setProfileImageUrl(getTemporaryProfileImageUrl());
         userRepository.save(user);
         logger.info("New user password: " + password);
+        emailService.sendNewPasswordEmail(firstName, password, email);
         return user;
     }
 
